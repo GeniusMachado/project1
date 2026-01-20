@@ -1,0 +1,12 @@
+[project]
+name = "project1"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "dotenv>=0.9.9",
+    "fastapi>=0.128.0",
+    "security>=1.3.1",
+    "sqlmodel>=0.0.31",
+]
