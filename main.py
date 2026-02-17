@@ -42,7 +42,9 @@ def main(depends=verify_credentials):
     
     return "Hello from project1!"
 
-
+@app.get("/dashboard")
+def view_dashboard(depends = verify_credentials):
+	return "Hello there from the dashboard and here you should be able to seee all the application monitoring features"
 
 if __name__ == "__main__":
     main()
