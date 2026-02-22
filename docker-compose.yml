@@ -8,8 +8,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - ADMIN_USER=${ADMIN_USER:-admin}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-password123}
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - DATABASE_URL=sqlite:///database.db
     volumes:
       - ./database.db:/app/database.db
