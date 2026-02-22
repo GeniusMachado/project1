@@ -4,7 +4,7 @@ services:
     container_name: file_upload_backend
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.backend
     ports:
       - "8000:8000"
     environment:
