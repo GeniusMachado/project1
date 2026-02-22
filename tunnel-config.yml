@@ -1,0 +1,7 @@
+tunnel: 23886a28-9e7a-4772-84f2-37f3e63bbe58
+credentials-file: /etc/cloudflared/cred.json
+
+ingress:
+  - hostname: geniusmachado.com
+    service: http://backend:8000
+  - service: http_status:404
