@@ -47,7 +47,7 @@ project1/
 ├── main.py                    # FastAPI backend (FIXED)
 ├── frontend.py               # Streamlit UI (FIXED)
 ├── schemas.py               # SQLModel definitions (UPDATED)
-├── Dockerfile               # Backend container (UPDATED - port 8000)
+├── Dockerfile.backend       # Backend container (UPDATED - port 8000)
 ├── Dockerfile.frontend      # Frontend container (NEW)
 ├── docker-compose.yml       # Orchestration file (NEW)
 ├── requirements.txt         # Python dependencies (UPDATED)
