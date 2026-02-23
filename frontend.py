@@ -59,31 +59,82 @@ if "username" not in st.session_state:
 st.sidebar.title("🔐 Authentication")
 st.sidebar.info("📌 Credentials are securely transmitted to the backend API for validation.")
 
-username = st.sidebar.text_input("Username", value=st.session_state.username or "", type="default")
-password = st.sidebar.text_input("Password", value="", type="password")
+# Authentication tabs: Login vs Register
+auth_tab1, auth_tab2 = st.sidebar.tabs(["Login", "Register"])
 
-if st.sidebar.button("Login", use_container_width=True, type="primary"):
-    if username and password:
-        # Send credentials to backend for validation
-        try:
-            response = requests.get(
-                f"{API_BASE_URL}/dashboard",
-                auth=(username, password),
-                timeout=5
-            )
-            if response.status_code == 200:
-                st.session_state.auth_token = (username, password)
-                st.session_state.username = username
-                st.success("✅ Authenticated successfully!")
-                st.rerun()
-            else:
-                st.error("❌ Invalid credentials. Authentication failed.")
-        except requests.exceptions.ConnectionError:
-            st.error("❌ Cannot connect to backend. Make sure it's running.")
-        except Exception as e:
-            st.error(f"❌ Authentication error: {str(e)}")
-    else:
-        st.error("❌ Please enter both username and password")
+# --- LOGIN TAB ---
+with auth_tab1:
+    st.subheader("Login to Your Account")
+    username = st.text_input("Email", value=st.session_state.username or "", type="default", key="login_email")
+    password = st.text_input("Password", value="", type="password", key="login_password")
+    
+    if st.button("Login", use_container_width=True, type="primary", key="login_btn"):
+        if username and password:
+            # Send credentials to backend for validation
+            try:
+                response = requests.get(
+                    f"{API_BASE_URL}/dashboard",
+                    auth=(username, password),
+                    timeout=5
+                )
+                if response.status_code == 200:
+                    st.session_state.auth_token = (username, password)
+                    st.session_state.username = username
+                    st.success("✅ Authenticated successfully!")
+                    st.rerun()
+                else:
+                    st.error("❌ Invalid credentials. Authentication failed.")
+            except requests.exceptions.ConnectionError:
+                st.error("❌ Cannot connect to backend. Make sure it's running.")
+            except Exception as e:
+                st.error(f"❌ Authentication error: {str(e)}")
+        else:
+            st.error("❌ Please enter both email and password")
+
+# --- REGISTER TAB ---
+with auth_tab2:
+    st.subheader("Create a New Account")
+    reg_email = st.text_input("Email", type="default", key="reg_email")
+    reg_password = st.text_input("Password", type="password", key="reg_password")
+    reg_password_confirm = st.text_input("Confirm Password", type="password", key="reg_password_confirm")
+    
+    if st.button("Register", use_container_width=True, type="secondary", key="register_btn"):
+        if not reg_email or not reg_password or not reg_password_confirm:
+            st.error("❌ Please fill in all fields")
+        elif reg_password != reg_password_confirm:
+            st.error("❌ Passwords do not match")
+        elif len(reg_password) < 6:
+            st.error("❌ Password must be at least 6 characters")
+        else:
+            try:
+                response = requests.post(
+                    f"{API_BASE_URL}/auth/register",
+                    json={"email": reg_email, "password": reg_password},
+                    timeout=5
+                )
+                if response.status_code == 200:
+                    result = response.json()
+                    st.markdown(f"""
+                    <div class="success-box">
+                    <h4>✅ Registration Successful!</h4>
+                    <p><strong>Email:</strong> {result.get('email')}</p>
+                    <p><strong>User ID:</strong> {result.get('user_id')}</p>
+                    <p>You can now login with your credentials.</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    error_detail = response.json().get("detail", "Unknown error")
+                    st.markdown(f"""
+                    <div class="error-box">
+                    <h4>❌ Registration Failed</h4>
+                    <p>{error_detail}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+            except requests.exceptions.ConnectionError:
+                st.error("❌ Cannot connect to backend. Make sure it's running.")
+            except Exception as e:
+                st.error(f"❌ Registration error: {str(e)}")
+
 
 # Main content
 st.markdown('<div class="main-header">📁 File Upload Manager System</div>', unsafe_allow_html=True)
