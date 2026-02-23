@@ -4,7 +4,7 @@ A complete microservices application for file management with a modern Streamlit
 
 ## ✨ Features
 
-- 📤 **Secure File Upload** - Upload PDF files with authentication
+- 📤 **Secure File Upload** - Upload files with authentication
 - 📊 **Dashboard** - View all uploaded files with analytics and statistics
 - 🗑️ **File Management** - Delete files from the database
 - 🔐 **Authentication** - HTTP Basic authentication for secure access
