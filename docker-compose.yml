@@ -10,9 +10,12 @@ services:
     environment:
       - ADMIN_USER=${ADMIN_USER}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-      - DATABASE_URL=sqlite:///database.db
+      - MYSQL_USER=${MYSQL_USER:-root}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-rootpassword}
+      - MYSQL_HOST=db
+      - MYSQL_PORT=3306
+      - MYSQL_DB=${MYSQL_DB:-files_db}
     volumes:
-      - ./database.db:/app/database.db
       - ./:/app
     networks:
       - file-upload-network
@@ -23,7 +26,8 @@ services:
       retries: 3
       start_period: 10s
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   # Frontend Service (Streamlit)
   frontend:
@@ -66,15 +70,22 @@ services:
       - frontend
     restart: unless-stopped
 
-  # Database Service (SQLite via volume)
+  # MySQL Database Service
   db:
     container_name: file_upload_db
-    image: busybox:latest
-    volumes:
-      - ./database.db:/data/database.db
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DB:-files_db}
+    ports:
+      - "3306:3306"
     networks:
       - file-upload-network
-    command: sh -c "echo 'Database volume ready'"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 networks:
   file-upload-network:

@@ -15,6 +15,12 @@ RUN uv sync --frozen --no-install-project --no-dev
 
 COPY . .
 
+# Set default MySQL environment variables for Docker
+ENV MYSQL_USER=root
+ENV MYSQL_PASSWORD=rootpassword
+ENV MYSQL_HOST=db
+ENV MYSQL_PORT=3306
+ENV MYSQL_DB=files_db
 
 EXPOSE 8000
 
