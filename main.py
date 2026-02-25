@@ -14,6 +14,9 @@ import secrets
 
 load_dotenv()
 
+# Local utilities for file processing, pandas/numpy analysis, and AI summarization
+from utilities import process_uploaded_file, save_analysis_for_id, load_analysis_for_id
+
 app = FastAPI(title="File Upload API", version="1.0.0")
 
 # Enable CORS for frontend communication
@@ -303,6 +306,38 @@ def upload_data(file: UploadFile = File(...), user: dict = Depends(verify_creden
     except SQLAlchemyError as e:
         raise HTTPException(status_code=500, detail=f"DB error: {e}")
 
+    # Save uploaded file bytes to disk and process it (background processing could be used later)
+    try:
+        uploads_dir = os.path.join(os.getcwd(), "uploads")
+        os.makedirs(uploads_dir, exist_ok=True)
+        saved_path = None
+        # Read bytes from UploadFile
+        try:
+            file.file.seek(0)
+        except Exception:
+            pass
+        try:
+            file_bytes = file.file.read()
+        except Exception:
+            file_bytes = b""
+
+        if new_id is not None:
+            save_name = f"{int(new_id)}_{file_name}"
+            saved_path = os.path.join(uploads_dir, save_name)
+            with open(saved_path, "wb") as f:
+                f.write(file_bytes)
+
+            # Process file: pandas/numpy analysis + AI summary
+            try:
+                analysis = process_uploaded_file(file_bytes, file_name)
+                save_analysis_for_id(int(new_id), analysis)
+            except Exception as e:
+                # Log but don't abort upload
+                print("Analysis failed:", e)
+
+    except Exception as e:
+        print("Failed to save/process uploaded file:", e)
+
     return {
         "status": status,
         "reason": reason,
@@ -405,6 +440,26 @@ def delete_file(file_id: int, user: dict = Depends(verify_credentials)):
         "ok": True,
         "message": f"File {file_id} has been deleted by {user.get('email')}.",
     }
+
+
+@app.get("/files/{file_id}/analysis")
+def get_file_analysis(file_id: int, user: dict = Depends(verify_credentials)):
+    """Return analysis results for a given file if available."""
+    try:
+        # Check permission: file owner or admin
+        with engine.connect() as conn:
+            row = conn.execute(text("SELECT id, user_id FROM files WHERE id = :id"), {"id": file_id}).mappings().first()
+            if not row:
+                raise HTTPException(status_code=404, detail="File not found")
+            if not user.get("is_admin") and row["user_id"] != user.get("id"):
+                raise HTTPException(status_code=403, detail="Forbidden")
+
+        analysis = load_analysis_for_id(file_id)
+        if not analysis:
+            raise HTTPException(status_code=404, detail="Analysis not available for this file")
+        return analysis
+    except SQLAlchemyError as e:
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
 
 
 if __name__ == "__main__":

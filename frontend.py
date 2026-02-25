@@ -359,6 +359,46 @@ if st.session_state.auth_token:
         
         st.divider()
         
+        # File analysis section
+        st.subheader("🔬 File Analysis")
+        st.info("Enter a file ID and click 'Fetch Analysis' to view backend analysis and AI summary.")
+        colA, colB = st.columns([2,1])
+        with colA:
+            analysis_file_id = st.number_input("File ID for analysis:", min_value=1, step=1, key="analysis_id")
+        with colB:
+            if st.button("Fetch Analysis", use_container_width=True, key="fetch_analysis_btn"):
+                try:
+                    response = requests.get(
+                        f"{API_BASE_URL}/files/{analysis_file_id}/analysis",
+                        auth=st.session_state.auth_token,
+                        timeout=10
+                    )
+                    if response.status_code == 200:
+                        a = response.json()
+                        st.subheader("AI Summary")
+                        st.write(a.get('ai_summary', 'No summary available'))
+
+                        st.subheader("Analysis Overview")
+                        st.metric("Processed at", a.get('processed_at', 'N/A'))
+                        st.metric("Processing time (s)", a.get('processing_seconds', 0))
+
+                        st.subheader("Top Words")
+                        top = a.get('analysis', {}).get('top_words', [])
+                        if top:
+                            import pandas as _pd
+                            df_top = _pd.DataFrame(top)
+                            st.dataframe(df_top)
+                            st.bar_chart(df_top.set_index('word')['count'])
+                        else:
+                            st.info("No word data available for this file.")
+
+                    else:
+                        st.error(f"Failed to fetch analysis: {response.status_code} - {response.text}")
+                except Exception as e:
+                    st.error(f"Error fetching analysis: {str(e)}")
+
+        st.divider()
+        
         # API Information
         st.subheader("ℹ️ API Information")
         st.info(f"""

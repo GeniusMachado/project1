@@ -60,7 +60,9 @@ services:
   cloudflare-tunnel:
     container_name: file_upload_tunnel
     image: cloudflare/cloudflared:latest
-    command: tunnel --no-autoupdate run
+    # Enable verbose logging to help debug origin connection issues
+    # Note: --loglevel is a global flag and must be placed before the 'run' subcommand
+    command: tunnel --no-autoupdate --loglevel debug run
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
     networks:
