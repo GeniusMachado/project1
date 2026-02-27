@@ -157,16 +157,16 @@ if st.session_state.auth_token:
         col1, col2 = st.columns(2)
         
         with col1:
-            st.info("📌 **Supported Format:** Majority of the file extension types are supported\n\n⚠️ **Max Size:** 10MB")
+            st.info("📌 **Supported Format:** PDF files only\n\n⚠️ **Max Size:** 10MB")
         
         with col2:
             st.warning("🔒 Only authenticated users can upload files")
         
         # File uploader
         uploaded_file = st.file_uploader(
-            "Choose a PDF or CSV or text or doc or any of the many supported file types to upload",
-            type=["pdf", "csv", "xlsx", "xls", "txt", "docx", "pptx", "zip", "rar", "json", "xml", "md", "html", 'csv', 'tsv', 'log', 'sql', 'yaml', 'yml'],
-            help="Select a file from your computer"
+            "Choose a PDF file to upload",
+            type=["pdf"],
+            help="Select a PDF file from your computer"
         )
         
         if uploaded_file is not None:
@@ -430,7 +430,7 @@ else:
     with col2:
         st.success("""
         ### ✨ Features:
-        - 📤 Upload files securely
+        - 📤 Upload PDF files securely
         - 📊 View dashboard with analytics
         - 🗑️ Delete files from database
         - 🔐 Backend-handled authentication
