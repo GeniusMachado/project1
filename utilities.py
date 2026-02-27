@@ -25,7 +25,10 @@ LLM_MODEL = os.getenv("LLM_MODEL", "gemini-proto")
 
 
 def extract_text_from_bytes(file_bytes: bytes, filename: str) -> str:
-    "Try to extract human-readable text from uploaded bytes"
+    """Try to extract human-readable text from uploaded bytes.
+    - PDFs: use PyPDF2 if available
+    - Otherwise try UTF-8 decode with fallback
+    """
     lower = filename.lower()
     if lower.endswith(".pdf") and PdfReader is not None:
         try:
@@ -53,7 +56,7 @@ def extract_text_from_bytes(file_bytes: bytes, filename: str) -> str:
 
 
 def analyze_text_with_pandas(text: str) -> Dict[str, Any]:
-    "Return simple statistics and a small word-frequency dataframe."
+    """Return simple statistics and a small word-frequency dataframe."""
     words = []
     if not text:
         return {
@@ -88,7 +91,9 @@ def analyze_text_with_pandas(text: str) -> Dict[str, Any]:
 
 
 def ai_summarize_text(text: str, max_chars: int = 1000) -> str:
-    "Summarize text using Google Gemini if available, otherwise fallback.Keeps prompt minimal "
+    """Summarize text using Google Gemini if available, otherwise fallback.
+    Keeps prompt minimal.
+    """
     if not text:
         return "(no text extracted)"
 
@@ -112,7 +117,9 @@ def ai_summarize_text(text: str, max_chars: int = 1000) -> str:
 
 
 def process_uploaded_file(file_bytes: bytes, filename: str) -> Dict[str, Any]:
-    "Returns a JSON-serializable dict with analysis results"
+    """Full processing pipeline: extract text -> analyze -> AI summary.
+    Returns a JSON-serializable dict with analysis results.
+    """
     start = time.time()
     text = extract_text_from_bytes(file_bytes, filename)
     analysis = analyze_text_with_pandas(text)
