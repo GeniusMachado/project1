@@ -98,25 +98,75 @@ if st.session_state.auth_token:
     # TAB 1 - UPLOAD
     # ===============================
     with tab1:
-        st.header("Upload File")
-
-        uploaded_file = st.file_uploader("Choose file")
-
-        if uploaded_file and st.button("Upload"):
-            files = {"file": (uploaded_file.name, uploaded_file, uploaded_file.type)}
-            response = requests.post(
-                f"{API_BASE_URL}/upload",
-                files=files,
-                auth=st.session_state.auth_token
-            )
-            if response.status_code == 200:
-                st.success("File uploaded successfully")
-            else:
-                st.error("Upload failed")
-
-    # ===============================
-    # TAB 2 - DASHBOARD
-    # ===============================
+        st.markdown('<div class="section-header">Upload a New File</div>', unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.info("📌 **Supported Format:** PDF files only\n\n⚠️ **Max Size:** 10MB")
+        
+        with col2:
+            st.warning("🔒 Only authenticated users can upload files")
+        
+        # File uploader
+        uploaded_file = st.file_uploader(
+            "Choose a PDF file to upload",
+            type=["pdf"],
+            help="Select a PDF file from your computer"
+        )
+        
+        if uploaded_file is not None:
+            # Show file preview
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("File Name", uploaded_file.name)
+            with col2:
+                st.metric("File Size", f"{uploaded_file.size / (1024*1024):.2f} MB")
+            with col3:
+                st.metric("File Type", uploaded_file.type)
+            
+            if st.button("🚀 Upload File", use_container_width=True, type="primary"):
+                try:
+                    # Prepare the file for upload
+                    files = {"file": (uploaded_file.name, uploaded_file, uploaded_file.type)}
+                    
+                    # Make request with authentication
+                    response = requests.post(
+                        f"{API_BASE_URL}/upload",
+                        files=files,
+                        auth=st.session_state.auth_token,
+                        timeout=30
+                    )
+                    
+                    if response.status_code == 200:
+                        result = response.json()
+                        st.markdown(f"""
+                        <div class="success-box">
+                        <h4>✅ Upload Successful!</h4>
+                        <p><strong>Status:</strong> {result['status']}</p>
+                        <p><strong>Message:</strong> {result['reason']}</p>
+                        <p><strong>Database ID:</strong> {result['database_id']}</p>
+                        <p><strong>Uploaded by:</strong> {result['uploaded_by']}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        st.success("File stored in database successfully!")
+                    else:
+                        st.markdown(f"""
+                        <div class="error-box">
+                        <h4>❌ Upload Failed</h4>
+                        <p><strong>Status Code:</strong> {response.status_code}</p>
+                        <p><strong>Error:</strong> {response.text}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                
+                except requests.exceptions.ConnectionError:
+                    st.error("❌ Cannot connect to backend server. Make sure it's running.")
+                except requests.exceptions.Timeout:
+                    st.error("❌ Request timeout. File might be too large.")
+                except Exception as e:
+                    st.error(f"❌ Error uploading file: {str(e)}")
+    
+    # TAB 2: Dashboard
     with tab2:
         st.header("Dashboard")
 
@@ -288,4 +338,40 @@ if st.session_state.auth_token:
                     st.error(f"Training failed: {str(e)}")
 
 else:
-    st.warning("Please login to continue.")
+    st.warning("⚠️ Please authenticate using the sidebar to continue.")
+    
+    # Display info for unauthenticated users
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.info("""
+        ### 🔐 Backend Authentication:
+        1. Enter your username in the sidebar
+        2. Enter your password in the sidebar
+        3. Click the Login button
+        4. Your credentials are validated on the backend
+        5. Start uploading files!
+        """)
+    
+    with col2:
+        st.success("""
+        ### ✨ Features:
+        - 📤 Upload PDF files securely
+        - 📊 View dashboard with analytics
+        - 🗑️ Delete files from database
+        - 🔐 Backend-handled authentication
+        - 📋 File statistics and charts
+        - 🌐 Cloudflare Tunnel support
+        """)
+
+# Footer
+st.divider()
+st.markdown("""
+---
+<div style="text-align: center; color: gray; font-size: 0.85rem;">
+    <p>File Upload Manager System © 2026| All rights reserved</p>
+    <p>Built with <strong>Streamlit</strong> + <strong>FastAPI</strong> + <strong>SQLModel</strong> + <strong>Cloudflare Tunnel</strong></p>
+    <p><em>Authentication handled on backend • Powered by uv package manager</em></p>
+</div>
+""", unsafe_allow_html=True)
+

@@ -154,10 +154,14 @@ START_TIME = datetime.utcnow()
 
 @app.get("/")
 def read_root():
-    """Service info endpoint with helpful links and status. Returns JSON with uptime, available endpoints, docs link, allowed CORS origins, and a small DB summary (total files)."""
+    """Service info endpoint with helpful links and status.
+
+    Returns JSON with uptime, available endpoints, docs link, allowed CORS origins,
+    and a small DB summary (total files).
+    """
     uptime = datetime.utcnow() - START_TIME
 
-    # Try to get a small DB summary
+    # Try to get a small DB summary (total files)
     try:
         with engine.connect() as conn:
             total_files = conn.execute(text("SELECT COUNT(*) FROM files")).scalar()
@@ -190,7 +194,7 @@ def read_root():
 
 
 
-# USER REGISTRATION ENDPOINT
+# ---- USER REGISTRATION ENDPOINT ----
 @app.post("/auth/register")
 def register_user(user: schemas.UserRegister):
     """Register a new user account.
@@ -241,7 +245,7 @@ def register_user(user: schemas.UserRegister):
     }
 
 
-# for collecting data from the user most likely will be an upload option for send a file over TCP
+# --- THE ENDPOINT for collecting data from the user most likely will be an upload option for send a file over TCP ---
 @app.post("/upload")
 def upload_data(file: UploadFile = File(...), user: dict = Depends(verify_credentials)):
     """Upload a file. User must be authenticated.
@@ -347,7 +351,7 @@ def upload_data(file: UploadFile = File(...), user: dict = Depends(verify_creden
 
 
 
-# An endpoint to display all the files in our database with security for access control  
+# --An endpoint to display all the files in our database with security for access control  --
 @app.get("/dashboard")
 def view_dashboard(user: dict = Depends(verify_credentials)):
     """Get dashboard with files.
@@ -402,7 +406,9 @@ def view_dashboard(user: dict = Depends(verify_credentials)):
 
 @app.delete("/files/{file_id}")
 def delete_file(file_id: int, user: dict = Depends(verify_credentials)):
-    """Delete a file. Only admin or the file owner can delete.Regular users can only delete their own files.
+    """Delete a file. Only admin or the file owner can delete.
+    
+    Regular users can only delete their own files.
     Admin can delete any file.
     """
     try:
