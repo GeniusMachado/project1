@@ -5,30 +5,30 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-# ===============================
+
 # PAGE CONFIG
-# ===============================
+
 st.set_page_config(
     page_title="File Upload Manager",
-    page_icon="📁",
+    page_icon="💀",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 API_BASE_URL = os.getenv("BACKEND_API_URL", "http://backend:8000")
 
-# ===============================
+
 # SESSION STATE
-# ===============================
+
 if "auth_token" not in st.session_state:
     st.session_state.auth_token = None
 if "username" not in st.session_state:
     st.session_state.username = None
 
-# ===============================
+
 # SIDEBAR AUTH
-# ===============================
-st.sidebar.title("🔐 Authentication")
+
+st.sidebar.title("Authentication")
 login_tab, register_tab = st.sidebar.tabs(["Login", "Register"])
 
 # LOGIN
@@ -76,10 +76,10 @@ with register_tab:
             except:
                 st.error("Backend connection failed")
 
-# ===============================
+
 # MAIN APP
-# ===============================
-st.title("📁 File Upload Manager System")
+
+st.title("Lets kill it!")
 
 if st.session_state.auth_token:
 
@@ -94,19 +94,19 @@ if st.session_state.auth_token:
         ["📤 Upload", "📊 Dashboard", "📋 File Management", "🧠 ML Studio"]
     )
 
-    # ===============================
+  
     # TAB 1 - UPLOAD
-    # ===============================
+  
     with tab1:
         st.markdown('<div class="section-header">Upload a New File</div>', unsafe_allow_html=True)
         
         col1, col2 = st.columns(2)
         
         with col1:
-            st.info("📌 **Supported Format:** PDF files only\n\n⚠️ **Max Size:** 10MB")
+            st.info("Supported Format: PDF files only\n\n Max Size: 10MB")
         
         with col2:
-            st.warning("🔒 Only authenticated users can upload files")
+            st.warning("Only authenticated users can upload files")
         
         # File uploader
         uploaded_file = st.file_uploader(
@@ -153,18 +153,18 @@ if st.session_state.auth_token:
                     else:
                         st.markdown(f"""
                         <div class="error-box">
-                        <h4>❌ Upload Failed</h4>
+                        <h4>Upload Failed</h4>
                         <p><strong>Status Code:</strong> {response.status_code}</p>
                         <p><strong>Error:</strong> {response.text}</p>
                         </div>
                         """, unsafe_allow_html=True)
                 
                 except requests.exceptions.ConnectionError:
-                    st.error("❌ Cannot connect to backend server. Make sure it's running.")
+                    st.error("Cannot connect to backend server. Make sure it's running.")
                 except requests.exceptions.Timeout:
-                    st.error("❌ Request timeout. File might be too large.")
+                    st.error("Request timeout. File might be too large.")
                 except Exception as e:
-                    st.error(f"❌ Error uploading file: {str(e)}")
+                    st.error(f"Error uploading file: {str(e)}")
     
     # TAB 2: Dashboard
     with tab2:
@@ -183,9 +183,9 @@ if st.session_state.auth_token:
                 df = pd.DataFrame(data["files"])
                 st.dataframe(df, width="stretch")
 
-    # ===============================
+   
     # TAB 3 - FILE MANAGEMENT
-    # ===============================
+   
     with tab3:
         st.header("Delete File")
 
@@ -200,13 +200,13 @@ if st.session_state.auth_token:
             else:
                 st.error("Deletion failed")
 
-    # ===============================
+  
     # TAB 4 - ML STUDIO
-    # ===============================
+ 
     with tab4:
-        st.header("🧠 ML Studio")
+        st.header("Machine Learning (Not really my area but let's try)")
 
-        ml_file = st.file_uploader("Upload CSV dataset", type=["csv"], key="ml")
+        ml_file = st.file_uploader("Upload CSV dataset coz I dont handle PDF format on this endpoint :)", type=["csv"], key="ml")
 
         if ml_file:
             df = pd.read_csv(ml_file)
@@ -295,9 +295,9 @@ if st.session_state.auth_token:
 
                     st.success("Model trained successfully")
 
-                    # =====================
+                    
                     # CLASSIFICATION
-                    # =====================
+                    
                     if task_type == "Classification":
                         acc = accuracy_score(y_test, y_pred)
                         st.metric("Accuracy", f"{acc:.4f}")
@@ -317,9 +317,9 @@ if st.session_state.auth_token:
                         st.pyplot(fig)
                         st.text(classification_report(y_test, y_pred))
 
-                    # =====================
+                   
                     # REGRESSION
-                    # =====================
+                
                     else:
                         mse = mean_squared_error(y_test, y_pred)
                         r2 = r2_score(y_test, y_pred)
@@ -338,7 +338,7 @@ if st.session_state.auth_token:
                     st.error(f"Training failed: {str(e)}")
 
 else:
-    st.warning("⚠️ Please authenticate using the sidebar to continue.")
+    st.warning("Please authenticate using the sidebar to continue.")
     
     # Display info for unauthenticated users
     col1, col2 = st.columns(2)
@@ -355,13 +355,13 @@ else:
     
     with col2:
         st.success("""
-        ### ✨ Features:
-        - 📤 Upload PDF files securely
-        - 📊 View dashboard with analytics
-        - 🗑️ Delete files from database
-        - 🔐 Backend-handled authentication
-        - 📋 File statistics and charts
-        - 🌐 Cloudflare Tunnel support
+        Some Features:
+        - Upload PDF files securely
+        - View dashboard with analytics
+        - Delete files from database
+        - Backend-handled authentication
+        - File statistics and charts
+        - Cloudflare Tunnel support
         """)
 
 # Footer
