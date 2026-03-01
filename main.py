@@ -349,6 +349,26 @@ def upload_data(file: UploadFile = File(...), user: dict = Depends(verify_creden
 
 
 
+@app.post("/ml/upload")
+def upload_ml_dataset(file: UploadFile = File(...), user: dict = Depends(verify_credentials)):
+
+    if not file.filename.endswith(".csv"):
+        raise HTTPException(status_code=400, detail="Only CSV files allowed")
+
+    file_bytes = file.file.read()
+
+    try:
+        analysis = process_uploaded_file(file_bytes, file.filename)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return {
+        "message": "Dataset processed successfully",
+        "analysis": analysis
+    }
+
+
+
 
 
 # --An endpoint to display all the files in our database with security for access control  --
