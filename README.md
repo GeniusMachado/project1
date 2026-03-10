@@ -162,7 +162,7 @@ curl -X DELETE http://localhost:8000/files/1 \
 
 2. **Install dependencies**:
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements.txt or you can also use uv sync
    ```
 
 3. **Set environment variables**:
@@ -207,14 +207,12 @@ docker-compose exec backend bash
 
 ## 📝 Environment Variables
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
 | `ADMIN_USER` | very strong | Backend admin username |
 | `ADMIN_PASSWORD` | very secured | Backend admin password |
 | `DATABASE_URL` | sqlite:///database.db | Database connection string |
 | `STREAMLIT_SERVER_PORT` | 8501 | Frontend port |
 
-## 🐛 Troubleshooting
+
 
 ### Backend can't connect
 - Check if backend container is running: `docker-compose ps`
@@ -229,7 +227,8 @@ docker-compose exec backend bash
 ### Database issues
 - Delete and recreate: `rm database.db && docker-compose up --build`
 - Check permissions: `ls -la database.db`
-
+- On my linux machine sometimes I face race condition and also sometimes MariaDB takes time to boot up and sometimes there is port conflicts with 8000 or 8080 for backend and the DB trying to populate on the same port number of localhost. 
+- You might wanna debug this if your docker compose up breaks and the application does not start.
 ### Port conflicts
 - Change ports in `docker-compose.yml`
 - Check existing services: `netstat -tuln | grep LISTEN`
