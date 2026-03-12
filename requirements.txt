@@ -9,3 +9,6 @@ streamlit>=1.54.0
 pandas>=2.0.0
 requests>=2.31.0
 python-multipart>=0.0.6
+
+
+"""what happens if I delete the requirements file as we are using uv"""
